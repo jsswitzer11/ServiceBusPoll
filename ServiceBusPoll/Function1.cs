@@ -21,6 +21,7 @@ namespace ServiceBusPoll02
     public static class Function1
     {
         private static Settings settings;
+        private static string GameKey;
         [FunctionName("PlayCountPoll")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
@@ -29,6 +30,8 @@ namespace ServiceBusPoll02
             GetSettings(context, log);
             string[] playTypes = { "offense_sideline", "offense_endzone", "defense_sideline", "defense_endzone", "specialteams" };
             var managementClient = new ManagementClient(settings.ServiceBusConnectionString);
+
+            GameKey = await req.ReadAsStringAsync();
 
             long count = 0;
 
