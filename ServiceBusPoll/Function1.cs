@@ -11,6 +11,10 @@ using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using Microsoft.Azure.Amqp.Framing;
+using System.Collections.Generic;
+using Microsoft.Azure.ServiceBus.Core;
+using Microsoft.Azure.ServiceBus;
+using System.Text;
 
 namespace ServiceBusPoll02
 {
@@ -27,6 +31,21 @@ namespace ServiceBusPoll02
             var managementClient = new ManagementClient(settings.ServiceBusConnectionString);
 
             long count = 0;
+
+            List<string> gameKeys = new List<string>();
+            foreach (string plays in playTypes)
+            {
+                IMessageReceiver messageReceiver = new MessageReceiver(settings.ServiceBusConnectionString, plays, ReceiveMode.PeekLock);
+
+                // Receive up to a certain number of messages
+                var messages = await messageReceiver.PeekAsync(2000);
+
+                foreach (Message ms in messages)
+                {
+                    var newGameMessage = JsonConvert.DeserializeObject<messageBody>(Encoding.UTF8.GetString(ms.Body));
+                    gameKeys.Add(newGameMessage.gamekey);
+                }
+            }
 
             foreach (string plays in playTypes)
             {
@@ -71,5 +90,9 @@ namespace ServiceBusPoll02
     {
         public string ServiceBusConnectionString { get; set; }
         public string FunctionURL { get; set; }
+    }
+    class messageBody
+    {
+        public string gamekey { get; set; }
     }
 }
