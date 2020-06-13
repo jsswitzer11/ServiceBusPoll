@@ -59,7 +59,7 @@ namespace ServiceBusPoll02
             }
             await managementClient.CloseAsync();
 
-            if (count > 0)
+            if (gameKeys.Contains(GameKey))
             {
                 req.HttpContext.Response.Headers.Add("location", settings.FunctionURL);
                 req.HttpContext.Response.Headers.Add("retry-after", "30");
