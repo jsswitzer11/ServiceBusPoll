@@ -40,8 +40,13 @@ namespace ServiceBusPoll02
             {
                 IMessageReceiver messageReceiver = new MessageReceiver(settings.ServiceBusConnectionString, plays, ReceiveMode.PeekLock);
 
-                // Receive up to a certain number of messages
-                var messages = await messageReceiver.PeekAsync(2000);
+                var queue = await managementClient.GetQueueRuntimeInfoAsync(plays);
+                var messageCount = queue.MessageCount;
+
+                count += messageCount;
+
+                // Peek into the exact number of messages for each queue
+                var messages = await messageReceiver.PeekAsync((int)count);
 
                 foreach (Message ms in messages)
                 {
@@ -50,13 +55,6 @@ namespace ServiceBusPoll02
                 }
             }
 
-            foreach (string plays in playTypes)
-            {
-                var queue = await managementClient.GetQueueRuntimeInfoAsync(plays);
-                var messageCount = queue.MessageCount;
-
-                count += messageCount;
-            }
             await managementClient.CloseAsync();
 
             if (gameKeys.Contains(GameKey))
