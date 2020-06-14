@@ -45,7 +45,7 @@ namespace ServiceBusPoll02
 
                 count += messageCount;
 
-                // Peek into the exact number of messages for each queue
+                // Retrieve the exact number of messages for each queue
                 var messages = await messageReceiver.PeekAsync((int)count);
 
                 foreach (Message ms in messages)
