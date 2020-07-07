@@ -10,12 +10,10 @@ using Newtonsoft.Json;
 using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Configuration;
 using System.Net;
-using Microsoft.Azure.Amqp.Framing;
 using System.Collections.Generic;
 using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.ServiceBus;
 using System.Text;
-using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 
 namespace ServiceBusPoll02
 {
