@@ -20,7 +20,7 @@ namespace ServiceBusPoll02
     public static class Function1
     {
         private static Settings settings;
-        //private static string GameKey;
+
         [FunctionName("PlayCountPoll")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
