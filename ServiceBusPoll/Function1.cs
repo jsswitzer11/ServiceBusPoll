@@ -15,13 +15,14 @@ using System.Collections.Generic;
 using Microsoft.Azure.ServiceBus.Core;
 using Microsoft.Azure.ServiceBus;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 
 namespace ServiceBusPoll02
 {
     public static class Function1
     {
         private static Settings settings;
-        private static string GameKey;
+        //private static string GameKey;
         [FunctionName("PlayCountPoll")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
@@ -31,7 +32,7 @@ namespace ServiceBusPoll02
             string[] playTypes = { "offense_sideline", "offense_endzone", "defense_sideline", "defense_endzone", "specialteams" };
             var managementClient = new ManagementClient(settings.ServiceBusConnectionString);
 
-            GameKey = await req.ReadAsStringAsync();
+            string GameKey = req.Query["GameKey"];
 
             long count = 0;
 
@@ -50,20 +51,26 @@ namespace ServiceBusPoll02
 
                 foreach (Message ms in messages)
                 {
+                    
                     var newGameMessage = JsonConvert.DeserializeObject<messageBody>(Encoding.UTF8.GetString(ms.Body));
-                    gameKeys.Add(newGameMessage.gamekey);
+
+                    gameKeys.Add(newGameMessage.gamekey);                    
                 }
             }
 
             await managementClient.CloseAsync();
 
+            log.LogInformation($"Game Key is {GameKey}");
+
             if (gameKeys.Contains(GameKey))
             {
-                req.HttpContext.Response.Headers.Add("location", settings.FunctionURL);
+                req.HttpContext.Response.Headers.Add("location", settings.FunctionURL+"&GameKey="+GameKey);
                 req.HttpContext.Response.Headers.Add("retry-after", "30");
+                log.LogInformation($"Messages remaining for game {GameKey}: {count}");
                 return new StatusCodeResult((int)HttpStatusCode.Accepted);
             }
 
+            log.LogInformation($"Message count for {GameKey}: {count}");
             return new OkObjectResult("Completed");
         }
 
